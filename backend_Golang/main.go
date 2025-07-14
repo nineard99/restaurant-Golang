@@ -1,53 +1,35 @@
 package main
 
 import (
-	"log"
-	"net/http"
+	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 
 	"github.com/nineard99/restaurant-Golang/config"
-	"github.com/nineard99/restaurant-Golang/models"
+	"github.com/nineard99/restaurant-Golang/routes"
+
+	"github.com/nineard99/restaurant-Golang/utils"
 )
 
 func main() {
-	// เชื่อมต่อฐานข้อมูล
 	config.ConnectDB()
-
-	// สร้างตารางอัตโนมัติ
-	err := config.DB.AutoMigrate(&models.User{})
-	if err != nil {
-		log.Fatalf("AutoMigrate failed: %v", err)
-	}
-
+	utils.InitCloudinary()
 	r := gin.Default()
 
-	// Controller + Route รวมกัน
+	// เพิ่ม middleware CORS
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:3000"}, // ใส่ URL frontend คุณ
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		AllowCredentials: true, // จำเป็นถ้าใช้ cookie หรือ Authorization header
+		MaxAge:           12 * time.Hour,
+	}))
 
-	r.GET("/users", func(c *gin.Context) {
-		var users []models.User
-		if err := config.DB.Find(&users).Error; err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "ไม่สามารถดึงข้อมูลได้"})
-			return
-		}
-		c.JSON(http.StatusOK, users)
-	})
+	// routes
+	routes.SetupRoutes(r)
 
-	r.POST("/users", func(c *gin.Context) {
-		var newUser models.User
-		if err := c.ShouldBindJSON(&newUser); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
-		}
-		if err := config.DB.Create(&newUser).Error; err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "สร้างผู้ใช้ไม่สำเร็จ"})
-			return
-		}
-		c.JSON(http.StatusCreated, newUser)
-	})
+	// route อื่นๆ...
 
-	// เริ่ม server
-	if err := r.Run(":8080"); err != nil {
-		log.Fatalf("Failed to run server: %v", err)
-	}
+	r.Run(":8080")
 }

@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
+	"github.com/nineard99/restaurant-Golang/models"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -33,6 +34,11 @@ func ConnectDB() {
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatalf("Failed to connect database: %v", err)
+	}
+
+	err = db.AutoMigrate(&models.User{}, &models.RestaurantUser{}, &models.Restaurant{}, &models.MenuItem{}, &models.Order{}, &models.OrderItem{}, models.SeatTable{})
+	if err != nil {
+		log.Fatalf("AutoMigrate failed: %v", err)
 	}
 
 	DB = db

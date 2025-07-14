@@ -2,18 +2,16 @@ package models
 
 import (
 	"time"
-
-	"gorm.io/gorm"
 )
 
 type OrderItem struct {
-	ID         string   `gorm:"primaryKey;type:varchar(36)"`
-	OrderID    string   `gorm:"not null;index"`
-	Order      Order    `gorm:"foreignKey:OrderID"`
-	MenuItemID string   `gorm:"not null;index"`
-	MenuItem   MenuItem `gorm:"foreignKey:MenuItemID"`
-	Quantity   int      `gorm:"not null"`
-	CreatedAt  time.Time
-	UpdatedAt  time.Time
-	DeletedAt  gorm.DeletedAt `gorm:"index"`
+	ID         string         `gorm:"primaryKey;type:varchar(36)" json:"id"`
+	OrderID    string         `gorm:"not null;index" json:"orderId"`
+	Order      Order          `gorm:"foreignKey:OrderID" json:"order"`
+	MenuItemID string         `gorm:"not null;index" json:"menuItemId"`
+	MenuItem   MenuItem       `gorm:"foreignKey:MenuItemID" json:"menuItem"`
+	Quantity   int            `gorm:"not null" json:"quantity"`
+	CreatedAt  time.Time      `json:"createdAt"`
+	UpdatedAt  time.Time      `json:"updatedAt"`
 }
+

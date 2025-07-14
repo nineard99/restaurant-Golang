@@ -2,19 +2,17 @@ package models
 
 import (
 	"time"
-	"gorm.io/gorm"
 )
 
 type Restaurant struct {
-	ID        string           `gorm:"primaryKey;type:varchar(36)"`
-	Name      string           `gorm:"not null"`
-	Address   *string
-	Image     *string
-	Users     []RestaurantUser `gorm:"foreignKey:RestaurantID"`
-	Tables    []SeatTable      `gorm:"foreignKey:RestaurantID"`
-	MenuItems []MenuItem       `gorm:"foreignKey:RestaurantID"`
-	Orders    []Order          `gorm:"foreignKey:RestaurantID"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt gorm.DeletedAt `gorm:"index"`
+	ID        string           `gorm:"primaryKey;type:varchar(36)" json:"id"`
+	Name      string           `gorm:"not null" json:"name"`
+	Address   *string          `json:"address,omitempty"`
+	Image     *string          `json:"image,omitempty"`
+	Users     []RestaurantUser `gorm:"foreignKey:RestaurantID" json:"-"`
+	Tables    []SeatTable      `gorm:"foreignKey:RestaurantID" json:"-"`
+	MenuItems []MenuItem       `gorm:"foreignKey:RestaurantID" json:"-"`
+	Orders    []Order          `gorm:"foreignKey:RestaurantID" json:"-"`
+	CreatedAt time.Time        `json:"createdAt"`
+	UpdatedAt time.Time        `json:"updatedAt"`
 }

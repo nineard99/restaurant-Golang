@@ -2,8 +2,6 @@ package models
 
 import (
 	"time"
-
-	"gorm.io/gorm"
 )
 
 type User struct {
@@ -15,7 +13,6 @@ type User struct {
 	RestaurantLinks []RestaurantUser `gorm:"foreignKey:UserID"`
 	CreatedAt       time.Time
 	UpdatedAt       time.Time
-	DeletedAt       gorm.DeletedAt 	`gorm:"index"`
 }
 
 func (User) TableName() string {

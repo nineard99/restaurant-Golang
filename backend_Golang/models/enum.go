@@ -1,7 +1,6 @@
 package models
 
 type GlobalRole string
-
 const (
 	GlobalRoleDev        GlobalRole = "DEV"
 	GlobalRoleSuperAdmin GlobalRole = "SUPERADMIN"
