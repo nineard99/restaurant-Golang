@@ -5,74 +5,73 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/google/uuid"
 	"github.com/nineard99/restaurant-Golang/models"
 	"github.com/nineard99/restaurant-Golang/utils"
-
+	"github.com/nineard99/restaurant-Golang/config"
 	"golang.org/x/crypto/bcrypt"
-	"gorm.io/gorm"
+	"github.com/nineard99/restaurant-Golang/types"
 )
 
-func RegisterUser(db *gorm.DB, username, password, email, role string) (string, *models.User, error) {
-	if strings.TrimSpace(username) == "" {
+func RegisterUser(input *types.RegisterInput) (string, *models.User, error) {
+
+	if strings.TrimSpace(input.Username) == "" {
 		return "", nil, errors.New("username is required")
 	}
-	if strings.TrimSpace(password) == "" {
+	if strings.TrimSpace(input.Password) == "" {
 		return "", nil, errors.New("password is required")
 	}
 
 	// regex check
 	validPattern := regexp.MustCompile(`^[a-zA-Z0-9_$%!@#]+$`)
-	if !validPattern.MatchString(username) {
+	if !validPattern.MatchString(input.Username) {
 		return "", nil, errors.New("invalid username format")
 	}
-	if !validPattern.MatchString(password) {
+	if !validPattern.MatchString(input.Password) {
 		return "", nil, errors.New("invalid password format")
 	}
 
-	role = strings.ToUpper(role)
+	input.Role = strings.ToUpper(input.Role)
 	allowedRoles := []string{"DEV", "SUPERADMIN", "CUSTOMER"}
 	found := false
 	for _, r := range allowedRoles {
-		if r == role {
+		if r == input.Role {
 			found = true
 			break
 		}
 	}
 	if !found {
-		role = "CUSTOMER" // default
+		input.Role = "CUSTOMER" // default
 	}
 
 	// Check if username or email exists
 	var count int64
-	db.Model(&models.User{}).Where("username = ?", username).Count(&count)
+	config.DB.Model(&models.User{}).Where("username = ?", input.Username).Count(&count)
 	if count > 0 {
 		return "", nil, errors.New("username is already taken")
 	}
-	if email != "" {
-		db.Model(&models.User{}).Where("email = ?", email).Count(&count)
+	if input.Email != "" {
+		config.DB.Model(&models.User{}).Where("email = ?", input.Email).Count(&count)
 		if count > 0 {
 			return "", nil, errors.New("email is already taken")
 		}
 	}
 
 	// Hash password
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return "", nil, err
 	}
 
-	userID := uuid.New().String()
 
 	user := models.User{
-		ID:       userID,
-		Username: username,
-		Email:    utils.NullableString(email),
+		ID:       utils.GenerateUUID(),
+		Username: input.Username,
+		Email:    utils.NullableString(input.Email),
 		Password: string(hashedPassword),
-		Role:     utils.ParseGlobalRole(role),
+		Role:     utils.ParseGlobalRole(input.Role),
 	}
 
-	if err := db.Create(&user).Error; err != nil {
+	if err := config.DB.Create(&user).Error; err != nil {
 		return "", nil, err
 	}
 
@@ -84,13 +83,14 @@ func RegisterUser(db *gorm.DB, username, password, email, role string) (string, 
 	return token, &user, nil
 }
 
-func LoginUser(db *gorm.DB, username, password string) (string, *models.User, error) {
+func LoginUser( username, password string) (string, *models.User, error) {
+	
 	if strings.TrimSpace(username) == "" || strings.TrimSpace(password) == "" {
 		return "", nil, errors.New("username and password required")
 	}
 
 	var user models.User
-	if err := db.Where("username = ?", username).First(&user).Error; err != nil {
+	if err := config.DB.Where("username = ?", username).First(&user).Error; err != nil {
 		return "", nil, errors.New("invalid username or password")
 	}
 

@@ -13,6 +13,7 @@ import (
 )
 
 func Authenticate() gin.HandlerFunc {
+	
 	return func(c *gin.Context) {
 		// 1. ดึง token จาก cookie หรือ header
 		tokenString, err := getTokenFromRequest(c)
@@ -56,12 +57,12 @@ func Authenticate() gin.HandlerFunc {
 }
 
 func getTokenFromRequest(c *gin.Context) (string, error) {
-	// ลองจาก cookie ก่อน
+
 	if token, err := c.Cookie("jwt"); err == nil {
 		return token, nil
 	}
 
-	// จาก header Authorization: Bearer <token>
+	// จาก header Authorization: Bearer
 	authHeader := c.GetHeader("Authorization")
 	if strings.HasPrefix(authHeader, "Bearer ") {
 		return strings.TrimPrefix(authHeader, "Bearer "), nil

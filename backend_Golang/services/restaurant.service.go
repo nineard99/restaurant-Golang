@@ -4,8 +4,6 @@ import (
 	"errors"
 	"strings"
 
-	"fmt"
-
 	"github.com/nineard99/restaurant-Golang/config"
 	"github.com/nineard99/restaurant-Golang/models"
 	"github.com/nineard99/restaurant-Golang/types"
@@ -79,10 +77,6 @@ func GetAllRestaurantsByUserID(userID string) ([]map[string]interface{}, error) 
 			"createdAt": ur.Restaurant.CreatedAt,
 			"role":      ur.Role,
 		})
-	}
-	fmt.Println("== Found restaurants for user ==", userID)
-	for _, ur := range userRestaurants {
-		fmt.Println(" - ", ur.RestaurantID, ur.Restaurant.Name)
 	}
 
 	return result, nil

@@ -73,7 +73,6 @@ func GetAllMenuItems(restaurantID string) ([]models.MenuItem, error) {
 		return nil, errors.New("failed to retrieve menu items")
 	}
 
-	// ✅ ถ้าไม่มีเมนู จะได้ menus = [] (ไม่เป็น nil)
 	return menus, nil
 }
 

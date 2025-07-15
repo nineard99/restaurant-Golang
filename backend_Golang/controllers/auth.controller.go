@@ -6,19 +6,20 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/nineard99/restaurant-Golang/services"
 	"github.com/nineard99/restaurant-Golang/types"
-
-	"github.com/nineard99/restaurant-Golang/config"
 )
 
-// POST /auth/register
 func RegisterController(c *gin.Context) {
+
 	var input types.RegisterInput
+
+	//check input that client send Correct??
+	//ShouldBindJSON return Error not True/false
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	token, user, err := services.RegisterUser(config.DB, input.Username, input.Password, input.Email, input.Role)
+	token, user, err := services.RegisterUser(&input)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -41,7 +42,7 @@ func LoginController(c *gin.Context) {
 		return
 	}
 
-	token, user, err := services.LoginUser(config.DB, input.Username, input.Password)
+	token, user, err := services.LoginUser(input.Username, input.Password)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return

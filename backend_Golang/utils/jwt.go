@@ -8,9 +8,8 @@ import (
 	"github.com/nineard99/restaurant-Golang/types"
 )
 
-// สร้าง token
 func GenerateJWT(userID string, role string) (string, error) {
-	// เวลาหมดอายุ: 7 วัน
+	// TimeOut: 7 Day
 	expiration := time.Now().Add(7 * 24 * time.Hour)
 
 	claims := types.JWTClaims{
@@ -22,23 +21,15 @@ func GenerateJWT(userID string, role string) (string, error) {
 		},
 	}
 
-	// ใช้ SECRET จาก ENV
 	secret := os.Getenv("JWT_SECRET")
-	if secret == "" {
-		secret = "default_secret"
-	}
-
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString([]byte(secret))
 }
 
-// อ่าน token และแปลงเป็น claims
+// Read token และแปลงเป็น claims
 func ParseJWT(tokenStr string) (*types.JWTClaims, error) {
 	secret := os.Getenv("JWT_SECRET")
-	if secret == "" {
-		secret = "default_secret"
-	}
-
+	
 	token, err := jwt.ParseWithClaims(tokenStr, &types.JWTClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(secret), nil
 	})
